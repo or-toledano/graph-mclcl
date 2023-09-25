@@ -2,7 +2,7 @@ import torch
 from torch.optim import Adam
 from tu_dataset import DataLoader
 import numpy as np
-
+from tqdm import tqdm
 from utils import print_weights
 from tqdm import tqdm
 
@@ -72,7 +72,7 @@ def joao(loader, model, gamma_joao):
 
         count, count_stop = 0, len(loader.dataset)//(loader.batch_size*10)+1 # for efficiency, we only use around 10% of data to estimate the loss
         with torch.no_grad():
-            for _, data1, data2 in loader:
+            for _, data1, data2 in tqdm(loader):
                 data1 = data1.to(device)
                 data2 = data2.to(device)
                 out1 = model.forward_graphcl(data1)

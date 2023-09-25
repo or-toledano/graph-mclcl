@@ -99,7 +99,7 @@ class TUDatasetExt(InMemoryDataset):
         os.rename(osp.join(self.root, self.name), self.raw_dir)
 
     def process(self):
-        self.data, self.slices = read_tu_data(self.raw_dir, self.name)
+        self.data, self.slices, sizes = read_tu_data(self.raw_dir, self.name)
 
         if self.pre_filter is not None:
             data_list = [self.get(idx)[0] for idx in range(len(self))]
