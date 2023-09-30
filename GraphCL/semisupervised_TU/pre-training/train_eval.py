@@ -89,7 +89,7 @@ def cross_validation_with_val_set(dataset,
     for fold, (train_idx, test_idx, val_idx) in enumerate(
             zip(*k_fold(dataset, folds, epoch_select))):
 
-        """
+
         train_dataset = dataset[train_idx]
         test_dataset = dataset[test_idx]
         val_dataset = dataset[val_idx]
@@ -97,7 +97,7 @@ def cross_validation_with_val_set(dataset,
         train_loader = DataLoader(train_dataset, batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size, shuffle=False)
         test_loader = DataLoader(test_dataset, batch_size, shuffle=False)
-        """
+
 
         dataset.aug = "none"
         model = model_func(dataset).to(device)
@@ -116,9 +116,9 @@ def cross_validation_with_val_set(dataset,
                 model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2, aug_ratio2)
 
             print(train_loss)
-            """
+
             train_loss, train_acc = train(
-                model, optimizer, train_loader, device)
+                model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2, aug_ratio2)
             train_accs.append(train_acc)
             val_losses.append(eval_loss(
                 model, val_loader, device, with_eval_mode))
@@ -135,7 +135,7 @@ def cross_validation_with_val_set(dataset,
 
             if logger is not None:
                 logger(eval_info)
-            """
+
 
             if epoch % lr_decay_step_size == 0:
                 for param_group in optimizer.param_groups:
@@ -157,7 +157,7 @@ def cross_validation_with_val_set(dataset,
         t_end = time.perf_counter()
         durations.append(t_end - t_start)
 
-    """
+
     duration = tensor(durations)
     train_acc, test_acc = tensor(train_accs), tensor(test_accs)
     val_loss = tensor(val_losses)
@@ -180,7 +180,7 @@ def cross_validation_with_val_set(dataset,
     sys.stdout.flush()
 
     return train_acc_mean, test_acc_mean, test_acc_std, duration_mean
-    """
+
 
 
 def k_fold(dataset, folds, epoch_select):
@@ -237,7 +237,7 @@ def train(model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2,
         loss.backward()
         total_loss += loss.item() * num_graphs(data1)
         optimizer.step()
-    return total_loss / len(loader1.dataset), 0
+    return total_loss / len(loader1.dataset), 0.
 
 
 def eval_acc(model, loader, device, with_eval_mode):
@@ -257,7 +257,7 @@ def eval_loss(model, loader, device, with_eval_mode):
     if with_eval_mode:
         model.eval()
 
-    loss = 0
+    loss = 0.
     for data in loader:
         data = data.to(device)
         with torch.no_grad():
