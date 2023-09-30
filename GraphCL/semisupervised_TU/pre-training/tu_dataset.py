@@ -1,9 +1,10 @@
+import torch_geometric.utils
 from torch_geometric.datasets import TUDataset
 import torch
 from itertools import repeat, product
 import numpy as np
-
-
+from mcl_augs import preproc_graph, MCL_raw
+import networkx as nx
 
 class TUDatasetExt(TUDataset):
     r"""A variety of graph kernel benchmark datasets, *.e.g.* "IMDB-BINARY",
@@ -77,6 +78,8 @@ class TUDatasetExt(TUDataset):
             data = weighted_drop_nodes(data, self.aug_ratio, self.npower)
         elif self.aug == 'permE':
             data = permute_edges(data, self.aug_ratio)
+        elif self.aug == 'mcl':
+            data = mcl_aug(data, self.aug_ratio)
         elif self.aug == 'subgraph':
             data = subgraph(data, self.aug_ratio)
         elif self.aug == 'maskN':
@@ -206,6 +209,17 @@ def weighted_drop_nodes(data, aug_ratio, npower):
     except:
         data = data
     return data
+
+def mcl_aug(data, aug_ratio): # TODO - ratio
+    nx_data = torch_geometric.utils.to_networkx(data)
+    preproced = preproc_graph(nx_data)
+    if len(preproced):
+        mcl_post = MCL_raw(preproced, nodes=None, r=2)
+        mcl_post_nonsparse = nx.from_scipy_sparse_array(mcl_post)
+        geo_out = torch_geometric.utils.from_networkx(mcl_post_nonsparse)
+    else:
+        geo_out = torch_geometric.utils.from_networkx(preproced)
+    return geo_out # TODO
 
 
 def permute_edges(data, aug_ratio):

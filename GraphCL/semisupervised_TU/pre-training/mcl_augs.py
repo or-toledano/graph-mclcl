@@ -4,6 +4,7 @@ import scipy.sparse as ss
 from sklearn.preprocessing import normalize
 from tqdm import tqdm
 
+
 def prune(A, t):
     P = A.toarray()
     P[P < t] = 0
@@ -24,7 +25,7 @@ def converged(A):
     return True
 
 
-def MCL(G, nodes, r, t=1e-6, steps=20):
+def MCL_raw(G, nodes, r, t=1e-6, steps=20):
     A = nx.adjacency_matrix(G, nodelist=nodes)
     A = normalize(A, norm='l1', axis=0)
     A_i = A
@@ -36,6 +37,11 @@ def MCL(G, nodes, r, t=1e-6, steps=20):
         A_i = prune(A_i, t)
         if converged(A_i):
             break
+    return A_i
+
+
+def MCL(G, nodes, r, t=1e-6, steps=20):
+    A_i = MCL_raw(G, nodes, r=r, t=t, steps=steps)
     return get_clusters(A_i, nodes)
 
 
@@ -52,6 +58,7 @@ def get_clusters(A, nodes):
 
     return sorted(list(clusters))
 
+
 def preproc_graph(G):
     G.remove_edges_from(nx.selfloop_edges(G))
     G = nx.k_core(G, 3)
@@ -59,9 +66,9 @@ def preproc_graph(G):
         G.add_edge(node, node)
     return G
 
+
 def get_graph(path):
     with open(path, 'r') as f:
         data = f.readlines()
     G = nx.Graph([line[:-1].split('\t') for line in data])
     return preproc_graph(G)
-
