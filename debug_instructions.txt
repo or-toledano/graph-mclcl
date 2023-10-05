@@ -1,0 +1,2 @@
+python /home/orto/PycharmProjects/graph-mclcl/GraphCL/semisupervised_TU/pre-training/main.py --epochs 2
+You may want to run it with
