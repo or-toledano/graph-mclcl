@@ -1,2 +1,3 @@
-python /home/orto/PycharmProjects/graph-mclcl/GraphCL/semisupervised_TU/pre-training/main.py --epochs 2
+python /home/orto/PycharmProjects/graph-mclcl/GraphCL/semisupervised_TU/pre-training/main.py --epochs 2 --nfolds 1
+the --nfolds 1 is because there is a break inside of the folds loop causing it to fail with >=2 loops
 You may want to run it with
