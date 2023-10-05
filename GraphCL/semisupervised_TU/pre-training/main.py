@@ -52,6 +52,7 @@ parser.add_argument('--aug_ratio1', type=float, default=0.2)
 parser.add_argument('--aug2', type=str, default="mcl")  # TODO: return maskN aug that was previously here
 parser.add_argument('--aug_ratio2', type=float, default=0.2)
 parser.add_argument('--suffix', type=int, default=0)
+parser.add_argument('--nfolds', type=int, default=10)
 args = parser.parse_args()
 
 
@@ -184,7 +185,7 @@ def run_exp_lib(dataset_feat_net_triples,
             cross_validation_with_val_set(
                 dataset,
                 model_func,
-                folds=10,
+                folds=args.nfolds,
                 epochs=args.epochs,
                 batch_size=args.batch_size,
                 lr=args.lr,
