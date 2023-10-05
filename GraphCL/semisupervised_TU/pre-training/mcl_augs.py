@@ -2,7 +2,6 @@ import networkx as nx
 import numpy as np
 import scipy.sparse as ss
 from sklearn.preprocessing import normalize
-from tqdm import tqdm
 
 
 def prune(A, t):
@@ -29,7 +28,7 @@ def MCL_raw(G, nodes, r, t=1e-6, steps=20):
     A = nx.adjacency_matrix(G, nodelist=nodes)
     A = normalize(A, norm='l1', axis=0)
     A_i = A
-    for _ in tqdm(range(steps), total=steps):
+    for _ in range(steps):
         # do expansion step
         A_i = A_i.T * A_i
         # do inflation step
