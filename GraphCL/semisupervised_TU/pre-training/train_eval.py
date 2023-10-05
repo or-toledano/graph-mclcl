@@ -9,7 +9,7 @@ from sklearn.model_selection import StratifiedKFold
 from torch_geometric.data import DataLoader, DenseDataLoader as DenseLoader
 
 from utils import print_weights
-
+from tqdm import tqdm
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -226,7 +226,7 @@ def train(model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2,
 
     total_loss = 0
     correct = 0
-    for data1, data2 in zip(loader1, loader2):
+    for data1, data2 in tqdm(zip(loader1, loader2)):
         # print(data1, data2)
         optimizer.zero_grad()
         data1 = data1.to(device)
