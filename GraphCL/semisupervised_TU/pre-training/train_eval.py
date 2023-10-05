@@ -149,7 +149,7 @@ def cross_validation_with_val_set(dataset,
                  torch.save(model.state_dict(), 'models/' + dataset_name + '_' + aug1 + '_' + str(aug_ratio1) + '_'+ aug2 + '_' + str(aug_ratio2) + '_' + str(epoch) + '_' + str(lr) + '_' + str(suffix)  + '.pt')
 
         print("finish run")
-        break
+        # break
 
         if torch.cuda.is_available():
             torch.cuda.synchronize()
