@@ -210,6 +210,7 @@ def weighted_drop_nodes(data, aug_ratio, npower):
         data = data
     return data
 
+from copy import deepcopy
 def mcl_aug(data, aug_ratio): # TODO - ratio
     nx_data = torch_geometric.utils.to_networkx(data)
     preproced = preproc_graph(nx_data)
@@ -219,7 +220,9 @@ def mcl_aug(data, aug_ratio): # TODO - ratio
         geo_out = torch_geometric.utils.from_networkx(mcl_post_nonsparse)
     else:
         geo_out = torch_geometric.utils.from_networkx(preproced)
-    return geo_out # TODO
+    geo_out_final = deepcopy(data)
+    geo_out_final.edge_index = geo_out.edge_index
+    return geo_out_final # TODO
 
 
 def permute_edges(data, aug_ratio):
