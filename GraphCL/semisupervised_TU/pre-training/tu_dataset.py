@@ -215,7 +215,10 @@ def mcl_aug(data, aug_ratio): # TODO - ratio
     nx_data = torch_geometric.utils.to_networkx(data)
     preproced = preproc_graph(nx_data)
     if len(preproced):
-        mcl_post = MCL_raw(preproced, nodes=None, r=2)
+        mcl_post = MCL_raw(preproced, nodes=None, r=2, steps=2)
+        inds = mcl_post.data<=0.5
+        mcl_post.data[inds] = 0
+        mcl_post.data[~inds] = 1
         mcl_post_nonsparse = nx.from_scipy_sparse_array(mcl_post)
         geo_out = torch_geometric.utils.from_networkx(mcl_post_nonsparse)
     else:
