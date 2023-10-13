@@ -82,7 +82,7 @@ def cross_validation_with_val_set(dataset,
                                   logger=None,
                                   dataset_name=None,
                                   aug1=None, aug_ratio1=None,
-                                  aug2=None, aug_ratio2=None, suffix=None):
+                                  aug2=None, aug_ratio2=None, suffix=None, mcl_iters=None):
     assert epoch_select in ['val_max', 'test_max'], epoch_select
 
     val_losses, train_accs, test_accs, durations = [], [], [], []

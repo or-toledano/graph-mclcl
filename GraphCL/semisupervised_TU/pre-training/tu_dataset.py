@@ -43,10 +43,11 @@ class TUDatasetExt(TUDataset):
                  pre_filter=None,
                  use_node_attr=False,
                  processed_filename='data.pt',
-                 aug="none", aug_ratio=None):
+                 aug="none", aug_ratio=None, mcl_iters=None):
         self.processed_filename = processed_filename
         self.aug = "none"
         self.aug_ratio = None
+        self.mcl_iters = None
         super(TUDatasetExt, self).__init__(root, name, transform, pre_transform,
                                            pre_filter, use_node_attr)
 
@@ -79,7 +80,7 @@ class TUDatasetExt(TUDataset):
         elif self.aug == 'permE':
             data = permute_edges(data, self.aug_ratio)
         elif self.aug == 'mcl':
-            data = mcl_aug(data, self.aug_ratio)
+            data = mcl_aug(data, self.aug_ratio, self.mcl_iters)
         elif self.aug == 'subgraph':
             data = subgraph(data, self.aug_ratio)
         elif self.aug == 'maskN':
