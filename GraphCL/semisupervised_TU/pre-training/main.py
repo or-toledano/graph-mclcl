@@ -50,7 +50,8 @@ parser.add_argument('--aug1', type=str, default="dropN")
 parser.add_argument('--aug_ratio1', type=float, default=0.2)
 # parser.add_argument('--aug2', type=str, default="maskN")
 parser.add_argument('--aug2', type=str, default="mcl")  # TODO: return maskN aug that was previously here
-parser.add_argument('--aug_ratio2', type=float, default=0.2)
+parser.add_argument('--aug_ratio2', type=float, default=0.8)
+parser.add_argument('--mcl_iters', type=int, default=20)
 parser.add_argument('--suffix', type=int, default=0)
 parser.add_argument('--nfolds', type=int, default=10)
 args = parser.parse_args()
@@ -196,7 +197,7 @@ def run_exp_lib(dataset_feat_net_triples,
                 with_eval_mode=args.with_eval_mode,
                 logger=logger,
                 dataset_name=args.dataset,
-                aug1=args.aug1, aug_ratio1=args.aug_ratio1,
+                aug1=args.aug1, aug_ratio1=args.aug_ratio1, mcl_iters=args.mcl_iters,
                 aug2=args.aug2, aug_ratio2=args.aug_ratio2, suffix=args.suffix)
 
         """
