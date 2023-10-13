@@ -112,13 +112,10 @@ def cross_validation_with_val_set(dataset,
 
         for epoch in range(1, epochs + 1):
              
-            train_loss, _ = train(
-                model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2, aug_ratio2)
+            train_loss, train_acc = train(
+                model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2, aug_ratio2, mcl_iters)
 
             print(train_loss)
-
-            train_loss, train_acc = train(
-                model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2, aug_ratio2)
             train_accs.append(train_acc)
             val_losses.append(eval_loss(
                 model, val_loader, device, with_eval_mode))
@@ -211,13 +208,13 @@ def num_graphs(data):
         return data.x.size(0)
 
 
-def train(model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2, aug_ratio2):
+def train(model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2, aug_ratio2, mcl_iters):
 
     dataset.aug = "none"
     dataset1 = dataset.shuffle()
-    dataset1.aug, dataset1.aug_ratio = aug1, aug_ratio1
+    dataset1.aug, dataset1.aug_ratio, dataset1.mcl_iters = aug1, aug_ratio1, mcl_iters
     dataset2 = deepcopy(dataset1)
-    dataset2.aug, dataset2.aug_ratio = aug2, aug_ratio2
+    dataset2.aug, dataset2.aug_ratio, dataset2.mcl_iters,  = aug2, aug_ratio2, mcl_iters
 
     loader1 = DataLoader(dataset1, batch_size, shuffle=False)
     loader2 = DataLoader(dataset2, batch_size, shuffle=False)
