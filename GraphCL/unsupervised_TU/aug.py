@@ -232,6 +232,8 @@ class TUDataset_aug(InMemoryDataset):
             data_aug = drop_nodes(deepcopy(data))
         elif self.aug == 'pedges':
             data_aug = permute_edges(deepcopy(data))
+        elif self.aug == 'mcl':
+            data = mcl_aug(data, aug_ratio=0.8, mcl_iters=10)
         elif self.aug == 'subgraph':
             data_aug = subgraph(deepcopy(data))
         elif self.aug == 'mask_nodes':
@@ -326,6 +328,43 @@ def drop_nodes(data):
 
     return data
 
+from torch_geometric.utils.subgraph import subgraph as geo_subgraph
+import torch_geometric.data
+from mcl_augs import preproc_graph, MCL_raw
+import networkx as nx
+def mcl_aug(data, aug_ratio, mcl_iters): # TODO - ratio
+    if mcl_iters is None:
+        mcl_iters = 10
+    node_num, _ = data.x.size()
+    _, edge_num = data.edge_index.size()
+    affected_num = int(node_num * aug_ratio)
+    subset = torch.tensor(np.random.choice(node_num, affected_num, replace=False))
+    sub_edge_index, sub_edge_attr, sub_edge_mask = geo_subgraph(subset, data.edge_index, data.edge_attr, return_edge_mask=True)
+    sub_graph = data.clone()
+    sub_graph.x = sub_graph.x[subset]
+    sub_graph.edge_index = data.edge_index[..., sub_edge_mask]
+    if sub_graph.edge_attr is not None:
+        sub_graph.edge_attr = sub_graph.edge_attr[sub_edge_mask]
+
+    nx_data = torch_geometric.utils.to_networkx(sub_graph)
+    preproced = preproc_graph(nx_data)
+
+    if len(preproced):
+        mcl_post = MCL_raw(preproced, nodes=None, r=2, steps=mcl_iters)
+        inds = mcl_post.data<=0.5
+        mcl_post.data[inds] = 0
+        mcl_post.data[~inds] = 1
+        mcl_post_nonsparse = nx.from_scipy_sparse_array(mcl_post)
+        geo_out = torch_geometric.utils.from_networkx(mcl_post_nonsparse)
+    else:
+        geo_out = torch_geometric.utils.from_networkx(preproced)
+    geo_out_final = data.clone()
+    out_edge_index_after_mapping_to_original_inds = (subset[geo_out.edge_index[0]], subset[geo_out.edge_index[1]])
+    geo_out_edge_index = torch.vstack(out_edge_index_after_mapping_to_original_inds)
+    non_subgraph_edges = data.edge_index[..., ~sub_edge_mask]
+    final_edge_index = torch.hstack((non_subgraph_edges, geo_out_edge_index))
+    geo_out_final.edge_index = final_edge_index
+    return geo_out_final
 
 def permute_edges(data):
 

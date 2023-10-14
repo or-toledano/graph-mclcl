@@ -140,6 +140,7 @@ def main():
     parser.add_argument('--aug_ratio1', type=float, default = 0.2)
     parser.add_argument('--aug2', type=str, default = 'none')
     parser.add_argument('--aug_ratio2', type=float, default = 0.2)
+    parser.add_argument('--mcl_iters', type=int, default =10)
     args = parser.parse_args()
 
 
@@ -151,7 +152,7 @@ def main():
 
 
     #set up dataset
-    dataset = MoleculeDataset_aug("dataset/" + args.dataset, dataset=args.dataset)
+    dataset = MoleculeDataset_aug("dataset/" + args.dataset, dataset=args.dataset, mcl_iters=args.mcl_iters)
     print(dataset)
 
     #set up model

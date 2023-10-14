@@ -3,7 +3,6 @@ from torch_geometric.datasets import TUDataset
 import torch
 from itertools import repeat, product
 import numpy as np
-from mcl_augs import preproc_graph, MCL_raw
 import networkx as nx
 
 class TUDatasetExt(TUDataset):
@@ -211,11 +210,13 @@ def weighted_drop_nodes(data, aug_ratio, npower):
         data = data
     return data
 
-from copy import deepcopy
 from torch_geometric.utils.subgraph import subgraph as geo_subgraph
 import torch_geometric.data
+from mcl_augs import preproc_graph, MCL_raw
 
-def mcl_aug(data, aug_ratio, mcl_iters): # TODO - ratio
+def mcl_aug(data, aug_ratio, mcl_iters=None): # TODO - ratio
+    if mcl_iters is None:
+        mcl_iters = 10
     node_num, _ = data.x.size()
     _, edge_num = data.edge_index.size()
     affected_num = int(node_num * aug_ratio)

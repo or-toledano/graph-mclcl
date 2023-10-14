@@ -135,6 +135,7 @@ def main():
     parser.add_argument('--aug_ratio1', type=float, default = 0.2)
     parser.add_argument('--aug2', type=str, default = 'none') 
     parser.add_argument('--aug_ratio2', type=float, default = 0.2)
+    parser.add_argument('--mcl_iters', type=int, default = 10)
     args = parser.parse_args()
 
 
@@ -146,7 +147,7 @@ def main():
 
     #set up dataset
     root_unsupervised = 'dataset/unsupervised'
-    dataset = BioDataset_aug(root_unsupervised, data_type='unsupervised')
+    dataset = BioDataset_aug(root_unsupervised, data_type='unsupervised', mcl_iters=args.mcl_iters)
 
     print(dataset)
 
