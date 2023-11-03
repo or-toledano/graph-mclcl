@@ -1,42 +1,45 @@
-Brotli @ file:///tmp/abs_ecyw11_7ze/croots/recipe/brotli-split_1659616059936/work
+Brotli==1.0.9
 certifi==2023.7.22
-charset-normalizer @ file:///home/conda/feedstock_root/build_artifacts/charset-normalizer_1688813409104/work
-colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1666700638685/work
-idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1663625384323/work
-Jinja2 @ file:///home/conda/feedstock_root/build_artifacts/jinja2_1654302431367/work
-joblib @ file:///home/conda/feedstock_root/build_artifacts/joblib_1691577114857/work
+charset-normalizer==3.2.0
+colorama==0.4.6
+idna==3.4
+Jinja2==3.1.2
+joblib==1.3.2
 littleutils==0.2.2
-MarkupSafe @ file:///home/conda/feedstock_root/build_artifacts/markupsafe_1695367437975/work
+MarkupSafe==2.1.3
 mkl-fft==1.3.1
-mkl-random @ file:///tmp/build/80754af9/mkl_random_1626186064646/work
+mkl-random==1.2.2
 mkl-service==2.4.0
-networkx @ file:///home/conda/feedstock_root/build_artifacts/networkx_1680692919326/work
-numpy @ file:///croot/numpy_and_numpy_base_1672336185480/work
+networkx==3.1
+numpy==1.23.5
 ogb==1.2.4
 outdated==0.2.2
-packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1681337016113/work
+packaging==23.1
 pandas==2.0.3
 Pillow==9.3.0
-platformdirs @ file:///home/conda/feedstock_root/build_artifacts/platformdirs_1690813113769/work
-pooch @ file:///home/conda/feedstock_root/build_artifacts/pooch_1679580333621/work
-psutil @ file:///home/conda/feedstock_root/build_artifacts/psutil_1695367190297/work
-pyparsing @ file:///home/conda/feedstock_root/build_artifacts/pyparsing_1690737849915/work
-PySocks @ file:///home/conda/feedstock_root/build_artifacts/pysocks_1661604839144/work
+pip==23.2.1
+platformdirs==3.10.0
+pooch==1.7.0
+psutil==5.9.5
+pyparsing==3.1.1
+PySocks==1.7.1
 python-dateutil==2.8.2
 pytz==2023.3.post1
-requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1684774241324/work
-scikit-learn @ file:///home/conda/feedstock_root/build_artifacts/scikit-learn_1695282754718/work
-scipy @ file:///home/conda/feedstock_root/build_artifacts/scipy-split_1683900206454/work/base/dist/scipy-1.10.1-cp38-cp38-linux_x86_64.whl#sha256=13ab5c17dedeb97a65ba90de1c51475f2d3ae0fe50bc43e9b018cc2943541de4
-six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
-threadpoolctl @ file:///home/conda/feedstock_root/build_artifacts/threadpoolctl_1689261241048/work
+requests==2.31.0
+scikit-learn==1.3.1
+scipy==1.10.1
+setuptools==68.2.2
+six==1.16.0
+threadpoolctl==3.2.0
 torch==1.13.0
-torch-cluster @ https://data.pyg.org/whl/torch-1.13.0%2Bcu116/torch_cluster-1.6.0%2Bpt113cu116-cp38-cp38-linux_x86_64.whl#sha256=1523d1f23ef78cfca6af00dd36d2c5fad9a47b434e0937545e1aeb13f33bb57e
-torch-geometric @ file:///usr/share/miniconda/envs/test/conda-bld/pyg_1690989829518/work
-torch-scatter @ https://data.pyg.org/whl/torch-1.13.0%2Bcu116/torch_scatter-2.1.0%2Bpt113cu116-cp38-cp38-linux_x86_64.whl#sha256=32e301e5b2f4102fe197298fd37ad82a4d8901c759539569b816f98fd11218e5
-torch-sparse @ https://data.pyg.org/whl/torch-1.13.0%2Bcu116/torch_sparse-0.6.15%2Bpt113cu116-cp38-cp38-linux_x86_64.whl#sha256=79b44e7a0d75967b41982822ffa76c8deb15269ea7b2697848d2cce96d289e61
-torch-spline-conv @ https://data.pyg.org/whl/torch-1.13.0%2Bcu116/torch_spline_conv-1.2.1%2Bpt113cu116-cp38-cp38-linux_x86_64.whl#sha256=342a762805a68e022f70faaed576b47350dbd7c2c05715ac3926de59b8e00b44
+torch-cluster==1.6.0+pt113cu116
+torch-geometric==2.3.1
+torch-scatter==2.1.0+pt113cu116
+torch-sparse==0.6.15+pt113cu116
+torch-spline-conv==1.2.1+pt113cu116
 torchvision==0.14.0
-tqdm @ file:///home/conda/feedstock_root/build_artifacts/tqdm_1691671248568/work
-typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1695040754690/work
+tqdm==4.66.1
+typing_extensions==4.8.0
 tzdata==2023.3
-urllib3 @ file:///home/conda/feedstock_root/build_artifacts/urllib3_1695228328709/work
+urllib3==2.0.5
+wheel==0.41.2
