@@ -4,13 +4,13 @@ channels:
   - conda-forge
 #  - anaconda
   - pytorch
-  - nvidia
 #  - ostrokach-forge
   - pyg
 dependencies:
   - python=3.8
-  - pytorch=1.13.0
-  - torchvision=0.14.0
+#  - pytorch=1.13.0
+#  - torchvision=0.14.0
+# mamba install pytorch==1.13.0 torchvision==0.14.0 cpuonly -c pytorch
   - pip
   - pip:
     - https://data.pyg.org/whl/torch-1.13.0%2Bcpu/torch_cluster-1.6.0%2Bpt113cpu-cp38-cp38-linux_x86_64.whl
