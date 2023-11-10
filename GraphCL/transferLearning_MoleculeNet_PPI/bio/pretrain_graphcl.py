@@ -133,7 +133,7 @@ def main():
     parser.add_argument('--num_workers', type=int, default = 4, help='number of workers for dataset loading')
     parser.add_argument('--aug1', type=str, default = 'none') 
     parser.add_argument('--aug_ratio1', type=float, default = 0.2)
-    parser.add_argument('--aug2', type=str, default = 'none') 
+    parser.add_argument('--aug2', type=str, default = 'mcl')
     parser.add_argument('--aug_ratio2', type=float, default = 0.2)
     parser.add_argument('--mcl_iters', type=int, default = 10)
     args = parser.parse_args()
