@@ -64,7 +64,7 @@ elif args.model == "cl":
     from net_cl import ResGCN
 
 model_PATH = "../pre-training/models/" + args.dataset + "_" + args.aug1 + "_" + str(args.aug_ratio1) + "_" + args.aug2 + "_" + str(args.aug_ratio2) + "_" + args.model_epoch + "_" + args.model_lr + "_" + str(args.suffix) + ".pt"
-
+model_PATH = '/home/orto/PycharmProjects/graph-mclcl/GraphCL/semisupervised_TU/pre-training/models/NCI1_dropN_0.2_mcl_0.8_100_0.001_0.pt'
 log_PATH = "logs/" + args.model + "_" + args.dataset + "_log_" + str(args.semi_split) ###
 
 def create_n_filter_triples(datasets, feat_strs, nets, gfn_add_ak3=False,
