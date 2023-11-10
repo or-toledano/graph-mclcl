@@ -1,1 +1,1 @@
-python /home/orto/PycharmProjects/graph-mclcl/GraphCL/semisupervised_TU/pre-training/main.py --epochs 1 --nfolds 2
+python /home/orto/PycharmProjects/graph-mclcl/GraphCL/semisupervised_TU/pre-training/main.py --epochs 100 --nfolds 3
