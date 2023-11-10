@@ -178,7 +178,7 @@ def k_fold(dataset, folds, epoch_select, semi_split):
         train_mask[val_indices[i].long()] = 0
         idx_train = train_mask.nonzero().view(-1)
 
-        for _, idx in skf_semi.split(torch.zeros(idx_train.size()[0]), dataset[idx_train].data.y):
+        for _, idx in skf_semi.split(torch.zeros(idx_train.size()[0]), dataset.data.y[idx_train]):
             idx_train = idx_train[idx]
             break
 
