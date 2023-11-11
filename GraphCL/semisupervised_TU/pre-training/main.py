@@ -56,7 +56,6 @@ parser.add_argument('--suffix', type=int, default=0)
 parser.add_argument('--nfolds', type=int, default=10)
 args = parser.parse_args()
 
-
 def create_n_filter_triples(datasets, feat_strs, nets, gfn_add_ak3=False,
                             gfn_reall=True, reddit_odeg10=False,
                             dd_odeg10_ak1=False):
