@@ -1,0 +1,176 @@
+/home/orto/.conda/envs/bio/bin/python /home/orto/PycharmProjects/graph-mclcl/GraphCL/semisupervised_TU/finetuning/main_cl.py --epochs 100 --aug1 dropN --aug2 mcl
+[INFO] running standard benchmarks..
+-----
+Total 1 experiments in this run:
+1/1 - NCI1 - deg+odeg100 - ResGCN
+Here we go..
+-----
+1/1 - NCI1 - deg+odeg100 - ResGCN
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/data/in_memory_dataset.py:157: UserWarning: It is not recommended to directly access the internal storage format `data` of an 'InMemoryDataset'. If you are absolutely certain what you are doing, access the internal storage via `InMemoryDataset._data` instead to suppress this warning. Alternatively, you can access stacked individual attributes of every graph via `dataset.{attr_name}`.
+  warnings.warn(msg)
+/home/orto/.conda/envs/bio/lib/python3.8/site-packages/torch_geometric/deprecation.py:22: UserWarning: 'data.DataLoader' is deprecated, use 'loader.DataLoader' instead
+  warnings.warn(out)
+bn_feat.weight torch.Size([139])
+bn_feat.bias torch.Size([139])
+conv_feat.weight torch.Size([139, 128])
+conv_feat.bias torch.Size([128])
+bns_conv.0.weight torch.Size([128])
+bns_conv.0.bias torch.Size([128])
+bns_conv.1.weight torch.Size([128])
+bns_conv.1.bias torch.Size([128])
+bns_conv.2.weight torch.Size([128])
+bns_conv.2.bias torch.Size([128])
+convs.0.weight torch.Size([128, 128])
+convs.0.bias torch.Size([128])
+convs.1.weight torch.Size([128, 128])
+convs.1.bias torch.Size([128])
+convs.2.weight torch.Size([128, 128])
+convs.2.bias torch.Size([128])
+bn_hidden.weight torch.Size([128])
+bn_hidden.bias torch.Size([128])
+bns_fc.0.weight torch.Size([128])
+bns_fc.0.bias torch.Size([128])
+lins.0.weight torch.Size([128, 128])
+lins.0.bias torch.Size([128])
+lin_class.weight torch.Size([2, 128])
+lin_class.bias torch.Size([2])
+proj_head.0.weight torch.Size([128, 128])
+proj_head.0.bias torch.Size([128])
+proj_head.2.weight torch.Size([128, 128])
+proj_head.2.bias torch.Size([128])
+00/001: Train Acc: 0.514, Test Accuracy: 0.618
+00/010: Train Acc: 1.000, Test Accuracy: 0.623
+00/020: Train Acc: 1.000, Test Accuracy: 0.630
+00/030: Train Acc: 1.000, Test Accuracy: 0.623
+00/040: Train Acc: 1.000, Test Accuracy: 0.623
+00/050: Train Acc: 1.000, Test Accuracy: 0.616
+00/060: Train Acc: 1.000, Test Accuracy: 0.606
+00/070: Train Acc: 1.000, Test Accuracy: 0.603
+00/080: Train Acc: 1.000, Test Accuracy: 0.591
+00/090: Train Acc: 1.000, Test Accuracy: 0.591
+00/100: Train Acc: 1.000, Test Accuracy: 0.596
+01/001: Train Acc: 0.514, Test Accuracy: 0.635
+01/010: Train Acc: 0.973, Test Accuracy: 0.693
+01/020: Train Acc: 1.000, Test Accuracy: 0.645
+01/030: Train Acc: 1.000, Test Accuracy: 0.645
+01/040: Train Acc: 1.000, Test Accuracy: 0.645
+01/050: Train Acc: 1.000, Test Accuracy: 0.650
+01/060: Train Acc: 1.000, Test Accuracy: 0.642
+01/070: Train Acc: 1.000, Test Accuracy: 0.642
+01/080: Train Acc: 1.000, Test Accuracy: 0.642
+01/090: Train Acc: 1.000, Test Accuracy: 0.645
+01/100: Train Acc: 1.000, Test Accuracy: 0.640
+02/001: Train Acc: 0.486, Test Accuracy: 0.579
+02/010: Train Acc: 0.946, Test Accuracy: 0.494
+02/020: Train Acc: 0.973, Test Accuracy: 0.506
+02/030: Train Acc: 1.000, Test Accuracy: 0.501
+02/040: Train Acc: 1.000, Test Accuracy: 0.526
+02/050: Train Acc: 1.000, Test Accuracy: 0.528
+02/060: Train Acc: 1.000, Test Accuracy: 0.530
+02/070: Train Acc: 1.000, Test Accuracy: 0.526
+02/080: Train Acc: 1.000, Test Accuracy: 0.516
+02/090: Train Acc: 1.000, Test Accuracy: 0.518
+02/100: Train Acc: 1.000, Test Accuracy: 0.518
+03/001: Train Acc: 0.459, Test Accuracy: 0.533
+03/010: Train Acc: 0.946, Test Accuracy: 0.465
+03/020: Train Acc: 1.000, Test Accuracy: 0.516
+03/030: Train Acc: 1.000, Test Accuracy: 0.543
+03/040: Train Acc: 1.000, Test Accuracy: 0.538
+03/050: Train Acc: 1.000, Test Accuracy: 0.550
+03/060: Train Acc: 1.000, Test Accuracy: 0.552
+03/070: Train Acc: 1.000, Test Accuracy: 0.552
+03/080: Train Acc: 1.000, Test Accuracy: 0.560
+03/090: Train Acc: 1.000, Test Accuracy: 0.562
+03/100: Train Acc: 1.000, Test Accuracy: 0.567
+04/001: Train Acc: 0.649, Test Accuracy: 0.574
+04/010: Train Acc: 0.946, Test Accuracy: 0.569
+04/020: Train Acc: 0.946, Test Accuracy: 0.569
+04/030: Train Acc: 1.000, Test Accuracy: 0.577
+04/040: Train Acc: 1.000, Test Accuracy: 0.572
+04/050: Train Acc: 1.000, Test Accuracy: 0.567
+04/060: Train Acc: 1.000, Test Accuracy: 0.586
+04/070: Train Acc: 1.000, Test Accuracy: 0.586
+04/080: Train Acc: 1.000, Test Accuracy: 0.584
+04/090: Train Acc: 1.000, Test Accuracy: 0.589
+04/100: Train Acc: 1.000, Test Accuracy: 0.589
+05/001: Train Acc: 0.541, Test Accuracy: 0.589
+05/010: Train Acc: 0.973, Test Accuracy: 0.623
+05/020: Train Acc: 1.000, Test Accuracy: 0.645
+05/030: Train Acc: 1.000, Test Accuracy: 0.637
+05/040: Train Acc: 1.000, Test Accuracy: 0.628
+05/050: Train Acc: 1.000, Test Accuracy: 0.620
+05/060: Train Acc: 1.000, Test Accuracy: 0.611
+05/070: Train Acc: 1.000, Test Accuracy: 0.608
+05/080: Train Acc: 1.000, Test Accuracy: 0.613
+05/090: Train Acc: 1.000, Test Accuracy: 0.611
+05/100: Train Acc: 1.000, Test Accuracy: 0.613
+06/001: Train Acc: 0.514, Test Accuracy: 0.628
+06/010: Train Acc: 0.919, Test Accuracy: 0.582
+06/020: Train Acc: 1.000, Test Accuracy: 0.613
+06/030: Train Acc: 1.000, Test Accuracy: 0.608
+06/040: Train Acc: 1.000, Test Accuracy: 0.574
+06/050: Train Acc: 1.000, Test Accuracy: 0.591
+06/060: Train Acc: 1.000, Test Accuracy: 0.582
+06/070: Train Acc: 1.000, Test Accuracy: 0.577
+06/080: Train Acc: 1.000, Test Accuracy: 0.582
+06/090: Train Acc: 1.000, Test Accuracy: 0.584
+06/100: Train Acc: 1.000, Test Accuracy: 0.584
+07/001: Train Acc: 0.459, Test Accuracy: 0.618
+07/010: Train Acc: 0.946, Test Accuracy: 0.611
+07/020: Train Acc: 0.973, Test Accuracy: 0.618
+07/030: Train Acc: 1.000, Test Accuracy: 0.613
+07/040: Train Acc: 1.000, Test Accuracy: 0.606
+07/050: Train Acc: 1.000, Test Accuracy: 0.591
+07/060: Train Acc: 1.000, Test Accuracy: 0.599
+07/070: Train Acc: 1.000, Test Accuracy: 0.606
+07/080: Train Acc: 1.000, Test Accuracy: 0.613
+07/090: Train Acc: 1.000, Test Accuracy: 0.613
+07/100: Train Acc: 1.000, Test Accuracy: 0.616
+08/001: Train Acc: 0.730, Test Accuracy: 0.642
+08/010: Train Acc: 1.000, Test Accuracy: 0.637
+08/020: Train Acc: 1.000, Test Accuracy: 0.655
+08/030: Train Acc: 1.000, Test Accuracy: 0.645
+08/040: Train Acc: 1.000, Test Accuracy: 0.625
+08/050: Train Acc: 1.000, Test Accuracy: 0.640
+08/060: Train Acc: 1.000, Test Accuracy: 0.640
+08/070: Train Acc: 1.000, Test Accuracy: 0.635
+08/080: Train Acc: 1.000, Test Accuracy: 0.633
+08/090: Train Acc: 1.000, Test Accuracy: 0.635
+08/100: Train Acc: 1.000, Test Accuracy: 0.635
+09/001: Train Acc: 0.432, Test Accuracy: 0.562
+09/010: Train Acc: 0.919, Test Accuracy: 0.562
+09/020: Train Acc: 1.000, Test Accuracy: 0.560
+09/030: Train Acc: 1.000, Test Accuracy: 0.550
+09/040: Train Acc: 1.000, Test Accuracy: 0.535
+09/050: Train Acc: 1.000, Test Accuracy: 0.552
+09/060: Train Acc: 1.000, Test Accuracy: 0.562
+09/070: Train Acc: 1.000, Test Accuracy: 0.569
+09/080: Train Acc: 1.000, Test Accuracy: 0.569
+09/090: Train Acc: 1.000, Test Accuracy: 0.569
+09/100: Train Acc: 1.000, Test Accuracy: 0.569
+Train Acc: 1.0000, Test Acc: 0.598 ± 0.036, Duration: 7.804
+mid-result: data=NCI1, model=ResGCN, feat=deg+odeg100, eval=test_max, train_acc=100.00, test_acc=59.78 ± 3.59, sec=7.8
+-----
+fin-result: data=NCI1, model=ResGCN, feat=deg+odeg100, eval=test_max, train_acc=100.00, test_acc=59.78 ± 3.59, sec=7.8
+
+Process finished with exit code 0
