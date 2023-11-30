@@ -5,7 +5,7 @@ import torch
 import torch.nn.functional as F
 from torch import tensor
 from torch.optim import Adam
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, KFold
 from torch_geometric.data import DataLoader, DenseDataLoader as DenseLoader
 
 from utils import print_weights
@@ -94,7 +94,21 @@ def cross_validation_with_val_set(dataset,
         test_loader = DataLoader(test_dataset, batch_size, shuffle=False)
 
         model = model_func(dataset).to(device)
-        model.load_state_dict(torch.load(model_PATH))
+        model_dict = torch.load(model_PATH)
+        # new_model_dict = dict()
+        # for key, value in model_dict.items():
+        #     if 'bn_feat' in key:
+        #         new_key = key.replace('bn_feat', 'bn_feat.bn')
+        #     elif 'bns_conv' in key:
+        #         new_key = key.replace('bns_conv', 'bns_conv.bn')
+        #     elif 'bns_fc' in key:
+        #         new_key = key.replace('bns_fc', 'bns_fc.bn')
+        #     elif 'bn_hidden' in key:
+        #         new_key = key.replace('bn_hidden', 'bn_hidden.bn')
+        #     else:
+        #         new_key = key
+        #     new_model_dict[new_key] = value
+        model.load_state_dict(model_dict, strict=False)
 
         if fold == 0:
             print_weights(model)
@@ -141,12 +155,21 @@ def cross_validation_with_val_set(dataset,
     train_acc = train_acc.view(folds, epochs)
     test_acc = test_acc.view(folds, epochs)
     val_loss = val_loss.view(folds, epochs)
+    train_acc = train_acc[train_acc <= 1.0]
+    if train_acc.ndim == 1:
+        train_acc = train_acc[None, :]
+    test_acc = test_acc[test_acc <= 1.0]
+    if test_acc.ndim == 1:
+        test_acc = test_acc[None, :]
+    val_loss = val_loss[val_loss >= 0.0]
+    if val_loss.ndim == 1:
+        val_loss = val_loss[None, :]
     if epoch_select == 'test_max':  # take epoch that yields best test results.
         _, selected_epoch = test_acc.mean(dim=0).max(dim=0)
         selected_epoch = selected_epoch.repeat(folds)
     else:  # take epoch that yields min val loss for each fold individually.
         _, selected_epoch = val_loss.min(dim=1)
-    test_acc = test_acc[torch.arange(folds, dtype=torch.long), selected_epoch]
+    test_acc = test_acc[torch.arange(test_acc.shape[0], dtype=torch.long), selected_epoch]
     train_acc_mean = train_acc[:, -1].mean().item()
     test_acc_mean = test_acc.mean().item()
     test_acc_std = test_acc.std().item()
@@ -160,29 +183,37 @@ def cross_validation_with_val_set(dataset,
 
 
 def k_fold(dataset, folds, epoch_select, semi_split):
-    skf = StratifiedKFold(folds, shuffle=True, random_state=12345)
+    if dataset.name == "BIONIC":
+        skf = KFold(folds, shuffle=True, random_state=44)
+    else:
+        skf = StratifiedKFold(folds, shuffle=True, random_state=12345)
 
     test_indices, train_indices = [], []
-    for _, idx in skf.split(torch.zeros(len(dataset)), dataset.data.y):
-        test_indices.append(torch.from_numpy(idx))
+    for train_idx, test_idx in skf.split(torch.zeros(len(dataset)), dataset.data.y):
+        test_indices.append(torch.from_numpy(test_idx))
+        train_indices.append(torch.from_numpy(train_idx))
 
     if epoch_select == 'test_max':
         val_indices = [test_indices[i] for i in range(folds)]
     else:
         val_indices = [test_indices[i - 1] for i in range(folds)]
 
-    skf_semi = StratifiedKFold(semi_split, shuffle=True, random_state=12345)
-    for i in range(folds):
-        train_mask = torch.ones(len(dataset), dtype=torch.uint8)
-        train_mask[test_indices[i].long()] = 0
-        train_mask[val_indices[i].long()] = 0
-        idx_train = train_mask.nonzero().view(-1)
+    # skf_semi = StratifiedKFold(semi_split, shuffle=True, random_state=12345)
+    # for i in range(folds):
+    #     train_mask = torch.ones(len(dataset), dtype=torch.uint8)
+    #     train_mask[test_indices[i].long()] = 0
+    #     train_mask[val_indices[i].long()] = 0
+    #     idx_train = train_mask.nonzero().view(-1)
+    #
+    #     for _, idx in skf_semi.split(torch.zeros(idx_train.size()[0]), dataset.data.y[idx_train]):
+    #         idx_train = idx_train[idx]
+    #         break
+    #
+    #     train_indices.append(idx_train)
 
-        for _, idx in skf_semi.split(torch.zeros(idx_train.size()[0]), dataset.data.y[idx_train]):
-            idx_train = idx_train[idx]
-            break
-
-        train_indices.append(idx_train)
+    test_indices = [x.type(torch.long) for x in test_indices]
+    train_indices = [x.type(torch.long) for x in train_indices]
+    val_indices = [x.type(torch.long) for x in val_indices]
 
     return train_indices, test_indices, val_indices
 
@@ -193,22 +224,48 @@ def num_graphs(data):
     else:
         return data.x.size(0)
 
+def get_node_labels(data, num_node_labels):
+    labels_one_hot = data.x[:, :num_node_labels]
+    labels = torch.argmax(labels_one_hot, dim=1)
+    labels_mask = labels != num_node_labels - 1
+    return labels, labels_mask, labels_one_hot[:, :num_node_labels - 1]
 
 def train(model, optimizer, loader, device):
     model.train()
 
     total_loss = 0
     correct = 0
+    total_node_labels = 0
     for data in loader:
         optimizer.zero_grad()
         data = data.to(device)
-        out = model(data)
-        loss = F.nll_loss(out, data.y.view(-1))
-        pred = out.max(1)[1]
-        correct += pred.eq(data.y.view(-1)).sum().item()
-        loss.backward()
-        total_loss += loss.item() * num_graphs(data)
+        labels, mask, labels_one_hot = get_node_labels(data, model.num_node_labels)
+        out_g, out_n = model(data)
+        if loader.dataset.name == 'BIONIC':
+            out_n = out_n[mask, :]
+            labels = labels[mask]
+            labels_one_hot = labels_one_hot[mask]
+            #loss_n = torch.mean(torch.clamp(1 - labels_one_hot * out_n, min=0))
+            loss_n = F.nll_loss(out_n, labels)
+            loss_n.backward()
+            pred = out_n.max(1)[1]
+            correct += pred.eq(labels).sum().item()
+            total_loss += loss_n
+            total_node_labels += out_n.shape[0]
+        else:
+            loss_g = F.nll_loss(out_g, data.y.view(-1))
+            pred = out_g.max(1)[1]
+            correct += pred.eq(data.y.view(-1)).sum().item()
+            loss_g.backward()
+            total_loss += loss_g.item() * num_graphs(data)
         optimizer.step()
+    if loader.dataset.name == 'BIONIC':
+        if loader.dataset.name == 'BIONIC':
+            print(f"total_node_labels train: {total_node_labels}")
+            if total_node_labels > 0:
+                return total_loss / total_node_labels, correct / total_node_labels
+            else:
+                return -1, 2
     return total_loss / len(loader.dataset), correct / len(loader.dataset)
 
 
@@ -217,11 +274,27 @@ def eval_acc(model, loader, device, with_eval_mode):
         model.eval()
 
     correct = 0
+    total_node_labels = 0
     for data in loader:
         data = data.to(device)
         with torch.no_grad():
-            pred = model(data).max(1)[1]
-        correct += pred.eq(data.y.view(-1)).sum().item()
+            pred_g, pred_n = model(data)
+        if loader.dataset.name == 'BIONIC':
+            labels, mask, _ = get_node_labels(data, model.num_node_labels)
+            pred_n = pred_n[mask, :]
+            labels = labels[mask]
+            pred_n = pred_n.max(1)[1]
+            correct += pred_n.eq(labels).sum().item()
+            total_node_labels += pred_n.shape[0]
+        else:
+            pred_g = pred_g.max(1)[1]
+            correct += pred_g.eq(data.y.view(-1)).sum().item()
+    if loader.dataset.name == 'BIONIC':
+        print(f"total_node_labels eval acc: {total_node_labels}")
+        if total_node_labels > 0:
+            return correct / total_node_labels
+        else:
+            return 2
     return correct / len(loader.dataset)
 
 
@@ -230,9 +303,26 @@ def eval_loss(model, loader, device, with_eval_mode):
         model.eval()
 
     loss = 0
+    total_node_labels = 0
     for data in loader:
         data = data.to(device)
         with torch.no_grad():
-            out = model(data)
-        loss += F.nll_loss(out, data.y.view(-1), reduction='sum').item()
-    return loss / len(loader.dataset)
+            out_g, out_n = model(data)
+        if loader.dataset.name == 'BIONIC':
+            labels, mask, labels_one_hot = get_node_labels(data, model.num_node_labels)
+            out_n = out_n[mask, :]
+            labels = labels[mask]
+            labels_one_hot = labels_one_hot[mask]
+            #loss += torch.mean(torch.clamp(1 - labels_one_hot * out_n, min=0))
+            loss += F.nll_loss(out_n, labels, reduction='sum').item()
+            total_node_labels += out_n.shape[0]
+        else:
+            loss += F.nll_loss(out_g, data.y.view(-1), reduction='sum').item()
+    if loader.dataset.name == 'BIONIC':
+        print(f"total_node_labels eval loss: {total_node_labels}")
+        if total_node_labels > 0:
+            return loss / total_node_labels
+        else:
+            return -1
+    else:
+        return loss / len(loader.dataset)

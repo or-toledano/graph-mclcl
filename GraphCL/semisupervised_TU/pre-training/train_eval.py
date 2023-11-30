@@ -138,11 +138,12 @@ def cross_validation_with_val_set(dataset,
                 for param_group in optimizer.param_groups:
                     param_group['lr'] = lr_decay_factor * param_group['lr']
 
-            with open('logs/' + dataset_name + '_' + aug1 + '_' + str(aug_ratio1) + '_'+ aug2 + '_' + str(aug_ratio2) + '_cl_log', 'a+') as f:
+            with open('logs/' + dataset_name + '_' + aug1 + '_' + str(aug_ratio1) + '_'+ aug2 + '_' + str(aug_ratio2) + '_cl_log.txt', 'a+') as f:
                  f.write(str(epoch) + ' ' + str(train_loss))
                  f.write('\n')
 
             if epoch % 20 == 0:
+
                  torch.save(model.state_dict(), 'models/' + dataset_name + '_' + aug1 + '_' + str(aug_ratio1) + '_'+ aug2 + '_' + str(aug_ratio2) + '_' + str(epoch) + '_' + str(lr) + '_' + str(suffix)  + '.pt')
 
         print("finish run")
@@ -198,6 +199,9 @@ def k_fold(dataset, folds, epoch_select):
         train_mask[val_indices[i].long()] = 0
         train_indices.append(train_mask.nonzero().view(-1))
 
+    test_indices = [x.type(torch.long) for x in test_indices]
+    train_indices = [x.type(torch.long) for x in train_indices]
+    val_indices = [x.type(torch.long) for x in val_indices]
     return train_indices, test_indices, val_indices
 
 
@@ -228,9 +232,12 @@ def train(model, optimizer, dataset, device, batch_size, aug1, aug_ratio1, aug2,
         optimizer.zero_grad()
         data1 = data1.to(device)
         data2 = data2.to(device)
-        out1 = model.forward_cl(data1)
-        out2 = model.forward_cl(data2)
+        out1, nodeout1 = model.forward_cl(data1)
+        out2, nodeout2 = model.forward_cl(data2)
         loss = model.loss_cl(out1, out2)
+        if dataset.name == "BIONIC":
+            loss_node = (1/8) * model.node_similarity_cl_loss(nodeout1, nodeout2)
+            loss += loss_node
         loss.backward()
         total_loss += loss.item() * num_graphs(data1)
         optimizer.step()
@@ -247,6 +254,7 @@ def eval_acc(model, loader, device, with_eval_mode):
         with torch.no_grad():
             pred = model(data).max(1)[1]
         correct += pred.eq(data.y.view(-1)).sum().item()
+    total = len(loader.dataset)
     return correct / len(loader.dataset)
 
 

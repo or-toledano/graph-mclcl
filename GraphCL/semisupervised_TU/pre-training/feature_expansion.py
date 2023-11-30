@@ -5,6 +5,50 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_scatter import scatter_add
 from torch_geometric.utils import degree
 from torch_geometric.utils import remove_self_loops, add_self_loops
+import torch.nn as nn
+import numpy as np
+
+def get_emb(sin_inp):
+    """
+    Gets a base embedding for one dimension with sin and cos intertwined
+    """
+    emb = torch.stack((sin_inp.sin(), sin_inp.cos()), dim=-1)
+    return torch.flatten(emb, -2, -1)
+
+class PositionalEncoding1D(nn.Module):
+    def __init__(self, channels):
+        """
+        :param channels: The last dimension of the tensor you want to apply pos emb to.
+        """
+        super(PositionalEncoding1D, self).__init__()
+        self.org_channels = channels
+        channels = int(np.ceil(channels / 2) * 2)
+        self.channels = channels
+        inv_freq = 1.0 / (10000 ** (torch.arange(0, channels, 2).float() / channels))
+        self.register_buffer("inv_freq", inv_freq)
+        self.register_buffer("cached_penc", None)
+
+    def forward(self, tensor):
+        """
+        :param tensor: A 3d tensor of size (batch_size, x, ch)
+        :return: Positional Encoding Matrix of size (batch_size, x, ch)
+        """
+        if len(tensor.shape) != 3:
+            raise RuntimeError("The input tensor has to be 3d!")
+
+        if self.cached_penc is not None and self.cached_penc.shape == tensor.shape:
+            return self.cached_penc
+
+        self.cached_penc = None
+        batch_size, x, orig_ch = tensor.shape
+        pos_x = torch.arange(x, device=tensor.device).type(self.inv_freq.type())
+        sin_inp_x = torch.einsum("i,j->ij", pos_x, self.inv_freq)
+        emb_x = get_emb(sin_inp_x)
+        emb = torch.zeros((x, self.channels), device=tensor.device).type(tensor.type())
+        emb[:, : self.channels] = emb_x
+
+        self.cached_penc = emb[None, :, :orig_ch].repeat(batch_size, 1, 1)
+        return self.cached_penc
 
 class FeatureExpander(MessagePassing):
     r"""Expand features.
@@ -36,6 +80,8 @@ class FeatureExpander(MessagePassing):
         assert remove_edges in ["none", "nonself", "all"], remove_edges
 
         self.edge_norm_diag = 1e-8  # edge norm is used, and set A diag to it
+        self.pe = PositionalEncoding1D(1)
+        self.node_labels = 16
 
     def transform(self, data):
         if data.x is None:
@@ -91,6 +137,11 @@ class FeatureExpander(MessagePassing):
             data.x = x_base
             data.xg = torch.cat(super_nodes, 0).view((1, -1))
 
+        x = data.x
+        pe = torch.zeros((x.shape[0], 10, 1))
+        pe = self.pe(pe)[:, :, 0]
+        x = torch.cat((x, pe), dim=1)
+        data.x = x
         return data
 
     def compute_degree(self, edge_index, num_nodes):

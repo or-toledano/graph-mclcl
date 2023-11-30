@@ -5,6 +5,8 @@ from itertools import repeat, product
 import numpy as np
 import networkx as nx
 
+BIONIC_NAMES = ['Costanzo-2016', 'Hein-2015', 'Hu-2007', 'Huttlin-2015', 'Huttlin-2017', 'Krogan-2006', 'Rolland-2014', 'BIONIC']
+
 class TUDatasetExt(TUDataset):
     r"""A variety of graph kernel benchmark datasets, *.e.g.* "IMDB-BINARY",
     "REDDIT-BINARY" or "PROTEINS", collected from the `TU Dortmund University
@@ -47,8 +49,22 @@ class TUDatasetExt(TUDataset):
         self.aug = "none"
         self.aug_ratio = None
         self.mcl_iters = None
+        self.name = name
         super(TUDatasetExt, self).__init__(root, name, transform, pre_transform,
                                            pre_filter, use_node_attr)
+
+    @property
+    def raw_file_names(self):
+        if self.name in BIONIC_NAMES:
+            return [f'{self.name}.txt']
+        else:
+            return super(TUDatasetExt, self).raw_file_names
+
+    def download(self):
+        if self.name in BIONIC_NAMES:
+            return
+        else:
+            return super(TUDatasetExt, self).download()
 
     @property
     def processed_file_names(self):
@@ -61,7 +77,7 @@ class TUDatasetExt(TUDataset):
         if hasattr(self.data, '__num_nodes__'):
             data.num_nodes = self.data.__num_nodes__[idx]
 
-        for key in self.data.keys:
+        for key in self.data.keys():
             item, slices = self.data[key], self.slices[key]
             if torch.is_tensor(item):
                 s = list(repeat(slice(None), item.dim()))
@@ -71,6 +87,10 @@ class TUDatasetExt(TUDataset):
             else:
                 s = slice(slices[idx], slices[idx + 1])
             data[key] = item[s]
+
+        # do a quick and dirty fix for one graph:
+        data.edge_index[data.edge_index >= data.num_nodes] = 1
+        data.edge_index[data.edge_index <= 0] = 1
 
         if self.aug == 'dropN':
             data = drop_nodes(data, self.aug_ratio)
@@ -99,7 +119,6 @@ class TUDatasetExt(TUDataset):
             else:
                 print('sample augmentation error')
                 assert False
-
         elif self.aug == 'random3':
             ri = np.random.randint(3)
             if ri == 0:
@@ -111,8 +130,6 @@ class TUDatasetExt(TUDataset):
             else:
                 print('sample augmentation error')
                 assert False
-
-
         elif self.aug == 'random2':
             ri = np.random.randint(2)
             if ri == 0:
@@ -122,12 +139,6 @@ class TUDatasetExt(TUDataset):
             else:
                 print('sample augmentation error')
                 assert False
-
-
-
-
-
-
         else:
             print('augmentation error')
             assert False
@@ -154,6 +165,7 @@ def drop_nodes(data, aug_ratio):
 
     edge_index = data.edge_index.numpy()
     adj = torch.zeros((node_num, node_num))
+
     adj[edge_index[0], edge_index[1]] = 1
     adj = adj[idx_nondrop, :][:, idx_nondrop]
     edge_index = adj.nonzero().t()
@@ -220,7 +232,7 @@ def mcl_aug(data, aug_ratio, mcl_iters=None): # TODO - ratio
     node_num, _ = data.x.size()
     _, edge_num = data.edge_index.size()
     affected_num = int(node_num * aug_ratio)
-    subset = torch.tensor(np.random.choice(node_num, affected_num, replace=False))
+    subset = torch.tensor(np.random.choice(node_num, affected_num, replace=False), dtype=torch.long)
     sub_edge_index, sub_edge_attr, sub_edge_mask = geo_subgraph(subset, data.edge_index, data.edge_attr, return_edge_mask=True)
     sub_graph = data.clone()
     sub_graph.x = sub_graph.x[subset]

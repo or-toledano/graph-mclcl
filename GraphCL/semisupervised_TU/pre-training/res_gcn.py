@@ -6,6 +6,18 @@ import torch.nn.functional as F
 from torch.nn import Linear, BatchNorm1d
 from torch_geometric.nn import global_mean_pool, global_add_pool
 from gcn_conv import GCNConv
+import math
+
+class BatchNorm1dSafe(torch.nn.Module):
+    def __init__(self, dim):
+        super(BatchNorm1dSafe, self).__init__()
+        self.bn = BatchNorm1d(dim)
+
+    def forward(self, x):
+        if x.shape[0] == 1:
+            return x
+        else:
+            return self.bn(x)
 
 
 class ResGCN(torch.nn.Module):
@@ -30,16 +42,18 @@ class ResGCN(torch.nn.Module):
 
         if "xg" in dataset[0]:  # Utilize graph level features.
             self.use_xg = True
-            self.bn1_xg = BatchNorm1d(dataset[0].xg.size(1))
+            self.bn1_xg = BatchNorm1dSafe(dataset[0].xg.size(1))
             self.lin1_xg = Linear(dataset[0].xg.size(1), hidden)
-            self.bn2_xg = BatchNorm1d(hidden)
+            self.bn2_xg = BatchNorm1dSafe(hidden)
             self.lin2_xg = Linear(hidden, hidden)
         else:
             self.use_xg = False
 
         hidden_in = dataset.num_features
+        self.num_node_labels = dataset.num_node_labels
+        hidden_in -= self.num_node_labels
         if collapse:
-            self.bn_feat = BatchNorm1d(hidden_in)
+            self.bn_feat = BatchNorm1dSafe(hidden_in)
             self.bns_fc = torch.nn.ModuleList()
             self.lins = torch.nn.ModuleList()
             if "gating" in global_pool:
@@ -51,12 +65,12 @@ class ResGCN(torch.nn.Module):
             else:
                 self.gating = None
             for i in range(num_fc_layers - 1):
-                self.bns_fc.append(BatchNorm1d(hidden_in))
+                self.bns_fc.append(BatchNorm1dSafe(hidden_in))
                 self.lins.append(Linear(hidden_in, hidden))
                 hidden_in = hidden
             self.lin_class = Linear(hidden_in, dataset.num_classes)
         else:
-            self.bn_feat = BatchNorm1d(hidden_in)
+            self.bn_feat = BatchNorm1dSafe(hidden_in)
             feat_gfn = True  # set true so GCNConv is feat transform
             self.conv_feat = GCNConv(hidden_in, hidden, gfn=feat_gfn)
             if "gating" in global_pool:
@@ -71,31 +85,41 @@ class ResGCN(torch.nn.Module):
             self.convs = torch.nn.ModuleList()
             if self.res_branch == "resnet":
                 for i in range(num_conv_layers):
-                    self.bns_conv.append(BatchNorm1d(hidden))
+                    self.bns_conv.append(BatchNorm1dSafe(hidden))
                     self.convs.append(GCNConv(hidden, hidden, gfn=feat_gfn))
-                    self.bns_conv.append(BatchNorm1d(hidden))
+                    self.bns_conv.append(BatchNorm1dSafe(hidden))
                     self.convs.append(GConv(hidden, hidden))
-                    self.bns_conv.append(BatchNorm1d(hidden))
+                    self.bns_conv.append(BatchNorm1dSafe(hidden))
                     self.convs.append(GCNConv(hidden, hidden, gfn=feat_gfn))
             else:
                 for i in range(num_conv_layers):
-                    self.bns_conv.append(BatchNorm1d(hidden))
+                    self.bns_conv.append(BatchNorm1dSafe(hidden))
                     self.convs.append(GConv(hidden, hidden))
-            self.bn_hidden = BatchNorm1d(hidden)
+            self.bn_hidden = BatchNorm1dSafe(hidden)
             self.bns_fc = torch.nn.ModuleList()
             self.lins = torch.nn.ModuleList()
             for i in range(num_fc_layers - 1):
-                self.bns_fc.append(BatchNorm1d(hidden))
+                self.bns_fc.append(BatchNorm1dSafe(hidden))
                 self.lins.append(Linear(hidden, hidden))
             self.lin_class = Linear(hidden, dataset.num_classes)
 
+            self.bn_hidden_nodes = BatchNorm1dSafe(hidden)
+            self.bns_fc_nodes = torch.nn.ModuleList()
+            self.lins_nodes = torch.nn.ModuleList()
+            for i in range(num_fc_layers - 1):
+                self.bns_fc_nodes.append(BatchNorm1dSafe(hidden))
+                self.lins_nodes.append(Linear(hidden, hidden))
+
         # BN initialization.
         for m in self.modules():
-            if isinstance(m, (torch.nn.BatchNorm1d)):
-                torch.nn.init.constant_(m.weight, 1)
-                torch.nn.init.constant_(m.bias, 0.0001)
+            if isinstance(m, (BatchNorm1dSafe)):
+                torch.nn.init.constant_(m.bn.weight, 1)
+                torch.nn.init.constant_(m.bn.bias, 0.0001)
 
         self.proj_head = nn.Sequential(nn.Linear(128, 128), nn.ReLU(inplace=True), nn.Linear(128, 128))
+        self.proj_head_nodes = nn.Sequential(nn.Linear(128, 128 * 4),
+                                             nn.ReLU(inplace=True), nn.Linear(128 * 4, 128), nn.ReLU(inplace=True),
+                                             nn.Linear(128, 128))
 
     def reset_parameters(self):
         raise NotImplemented(
@@ -104,6 +128,7 @@ class ResGCN(torch.nn.Module):
 
     def forward(self, data):
         x, edge_index, batch = data.x, data.edge_index, data.batch
+        x = x[:, self.num_node_labels:]
         if self.use_xg:
             # xg is (batch_size x its feat dim)
             xg = self.bn1_xg(data.xg)
@@ -161,6 +186,7 @@ class ResGCN(torch.nn.Module):
 
     def forward_cl(self, data):
         x, edge_index, batch = data.x, data.edge_index, data.batch
+        x = x[:, self.num_node_labels:]
         if self.use_xg:
             # xg is (batch_size x its feat dim)
             xg = self.bn1_xg(data.xg)
@@ -179,6 +205,8 @@ class ResGCN(torch.nn.Module):
             x_ = self.bns_conv[i](x)
             x_ = F.relu(conv(x_, edge_index))
             x = x + x_ if self.conv_residual else x_
+        x_n = x
+        x_n = self.proj_head_nodes(x_n)
         gate = 1 if self.gating is None else self.gating(x)
         x = self.global_pool(x * gate, batch)
         x = x if xg is None else x + xg
@@ -190,7 +218,14 @@ class ResGCN(torch.nn.Module):
         if self.dropout > 0:
             x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.proj_head(x)
-        return x
+
+        # x_n = F.dropout(x_n, p=0.2, training=self.training)
+        # for i, lin in enumerate(self.lins_nodes):
+        #     x_ = self.bns_fc_nodes[i](x_n)
+        #     x_ = F.relu(lin(x_))
+        #     x_n = x_n + x_ if self.fc_residual else x_
+        # x_n = self.bn_hidden_nodes(x_n)
+        return x, x_n
 
     def forward_BNReLUConv(self, x, edge_index, batch, xg=None):
         x = self.bn_feat(x)
@@ -237,6 +272,37 @@ class ResGCN(torch.nn.Module):
         loss = - torch.log(loss).mean()
         
         return loss
+
+    def node_cl_loss(self, x1, x2):
+        T = 0.5
+        batch_size, _ = x1.size()
+        x1_abs = x1.norm(dim=1)
+        x2_abs = x2.norm(dim=1)
+        sim_matrix = torch.einsum('ik,jk->ij', x1, x2) / torch.einsum('i,j->ij', x1_abs, x2_abs)
+        sim_matrix = torch.exp(sim_matrix / T)
+        pos_sim = sim_matrix[range(batch_size), range(batch_size)]
+        loss = pos_sim / (sim_matrix.sum(dim=1) - pos_sim)
+        loss = - torch.log(loss).mean()
+
+        return loss
+
+    def node_similarity_cl_loss(self, x1, x2):
+        batch_size_loss = 5000
+        graph_loss = None
+        num_batchs = math.ceil(x1.shape[0] / batch_size_loss)
+        for i in range(num_batchs):
+            xb1 = x1[i * batch_size_loss: (i+1) * batch_size_loss, :]
+            xb2 = x2[i * batch_size_loss: (i + 1) * batch_size_loss, :]
+            node_cl_loss = self.node_cl_loss(xb1, xb2)
+            if graph_loss is None:
+                graph_loss = node_cl_loss
+            else:
+                graph_loss += node_cl_loss
+        graph_loss = graph_loss / num_batchs
+        # for xg1, xg2 in zip(x1, x2):
+        #     node_cl_loss = self.node_cl_loss(xg1, xg2)
+        #     graph_losss.append(node_cl_loss)
+        return graph_loss
 
 
     def forward_ConvReLUBN(self, x, edge_index, batch, xg=None):
